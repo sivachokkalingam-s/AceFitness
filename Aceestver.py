@@ -1,3 +1,8 @@
+# ACEest Fitness & Performance System
+# Version: 1.1.2
+# Latest Features: Multi-client support, CSV export, Matplotlib progress charts
+# Changes: Added client list table, progress visualization, data export capabilities
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 
