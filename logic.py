@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 
+
 DB_NAME = "aceest_fitness.db"
 
 PROGRAMS = {

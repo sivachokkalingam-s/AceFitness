@@ -1,6 +1,7 @@
 import logic
 import os
 
+
 def setup_module():
     # fresh DB before tests
     if os.path.exists("aceest_fitness.db"):
