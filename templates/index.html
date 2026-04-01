@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ACEest Fitness</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        header {
+            background: #d4af37;
+            color: black;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .main {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .left {
+            width: 30%;
+            padding: 20px;
+            border-right: 2px solid #444;
+        }
+
+        .right {
+            width: 70%;
+            padding: 20px;
+        }
+
+        h3 {
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            border: 1px solid #444;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #222;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 6px;
+            margin: 5px 0 10px 0;
+            background: #333;
+            border: none;
+            color: white;
+        }
+
+        button {
+            width: 100%;
+            padding: 8px;
+            background: #d4af37;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #c19b2e;
+        }
+
+        textarea {
+            width: 100%;
+            height: 90%;
+            background: #111;
+            color: white;
+            padding: 10px;
+            border: none;
+            font-family: Consolas, monospace;
+        }
+
+        .message {
+            margin-top: 10px;
+            color: lightgreen;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    ACEest Functional Fitness System
+</header>
+<div>
+    <h3>DEVOPS - BITS Assignment 1</h3>
+    <h3> Siva Chokkalingam S - 2024TM93515</h3>
+</div>
+
+<div class="main">
+    <!-- LEFT PANEL -->
+    <div class="left">
+
+        <div class="card">
+            <h3>Client Management</h3>
+
+            <form method="post" action="/save_client">
+                Name:
+                <input name="name" required>
+
+                Age:
+                <input name="age" type="number" required>
+
+                Weight:
+                <input name="weight" type="number" step="0.1" required>
+
+                Program:
+                <select name="program">
+                    <option>Fat Loss (FL)</option>
+                    <option>Muscle Gain (MG)</option>
+                    <option>Beginner (BG)</option>
+                </select>
+
+                <button type="submit">Save Client</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <form method="post" action="/load_client">
+                <h3>Load Client</h3>
+                Name:
+                <input name="name" required>
+                <button type="submit">Load Client</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <form method="post" action="/save_progress">
+                <h3>Save Progress</h3>
+                Name:
+                <input name="name" required>
+
+                Adherence (%):
+                <input name="adherence" type="number" min="0" max="100" required>
+
+                <button type="submit">Save Progress</button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right">
+        <h3>Client Summary</h3>
+
+        <textarea readonly>
+{{ summary if summary else "Load a client to view details..." }}
+        </textarea>
+
+        <div class="message">
+            {{ message if message else "" }}
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
