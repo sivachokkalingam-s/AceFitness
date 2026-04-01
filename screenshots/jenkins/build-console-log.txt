@@ -1,0 +1,110 @@
+Started by user admin
+Running as SYSTEM
+Building in workspace C:\ProgramData\Jenkins\.jenkins\workspace\AceFit
+The recommended git tool is: NONE
+No credentials specified
+ > git.exe rev-parse --resolve-git-dir C:\ProgramData\Jenkins\.jenkins\workspace\AceFit\.git # timeout=10
+Fetching changes from the remote Git repository
+ > git.exe config remote.origin.url https://github.com/sivachokkalingam-s/AceFitness # timeout=10
+Fetching upstream changes from https://github.com/sivachokkalingam-s/AceFitness
+ > git.exe --version # timeout=10
+ > git --version # 'git version 2.47.1.windows.1'
+ > git.exe fetch --tags --force --progress -- https://github.com/sivachokkalingam-s/AceFitness +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git.exe rev-parse "refs/remotes/origin/main^{commit}" # timeout=10
+Checking out Revision a5c721f07bfb66da8f7e98d5315d99d36d57e47c (refs/remotes/origin/main)
+ > git.exe config core.sparsecheckout # timeout=10
+ > git.exe checkout -f a5c721f07bfb66da8f7e98d5315d99d36d57e47c # timeout=10
+Commit message: "Merge pull request #9 from sivachokkalingam-s/feature/ui-changes"
+ > git.exe rev-list --no-walk a5c721f07bfb66da8f7e98d5315d99d36d57e47c # timeout=10
+[AceFit] $ cmd /c call C:\WINDOWS\TEMP\jenkins5355992670415438384.bat
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>echo Checking Python 
+Checking Python
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>python --version 
+Python 3.13.1
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>echo Installing dependencies 
+Installing dependencies
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>python -m pip install -r requirements.txt 
+Requirement already satisfied: flask in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from -r requirements.txt (line 1)) (3.1.3)
+Requirement already satisfied: pytest in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from -r requirements.txt (line 2)) (9.0.2)
+Requirement already satisfied: blinker>=1.9.0 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from flask->-r requirements.txt (line 1)) (1.9.0)
+Requirement already satisfied: click>=8.1.3 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from flask->-r requirements.txt (line 1)) (8.3.1)
+Requirement already satisfied: itsdangerous>=2.2.0 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from flask->-r requirements.txt (line 1)) (2.2.0)
+Requirement already satisfied: jinja2>=3.1.2 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from flask->-r requirements.txt (line 1)) (3.1.6)
+Requirement already satisfied: markupsafe>=2.1.1 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from flask->-r requirements.txt (line 1)) (3.0.3)
+Requirement already satisfied: werkzeug>=3.1.0 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from flask->-r requirements.txt (line 1)) (3.1.7)
+Requirement already satisfied: colorama>=0.4 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from pytest->-r requirements.txt (line 2)) (0.4.6)
+Requirement already satisfied: iniconfig>=1.0.1 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from pytest->-r requirements.txt (line 2)) (2.3.0)
+Requirement already satisfied: packaging>=22 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from pytest->-r requirements.txt (line 2)) (26.0)
+Requirement already satisfied: pluggy<2,>=1.5 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from pytest->-r requirements.txt (line 2)) (1.6.0)
+Requirement already satisfied: pygments>=2.7.2 in c:\users\lenovo\appdata\local\programs\python\python313\lib\site-packages (from pytest->-r requirements.txt (line 2)) (2.20.0)
+
+[notice] A new release of pip is available: 24.3.1 -> 26.0.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>echo Running tests 
+Running tests
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>python -m pytest 
+============================= test session starts =============================
+platform win32 -- Python 3.13.1, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\ProgramData\Jenkins\.jenkins\workspace\AceFit
+collected 4 items
+
+test_logic.py ....                                                       [100%]
+
+============================== 4 passed in 0.13s ==============================
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>echo Building Docker image 
+Building Docker image
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>docker build -t aceest-app . 
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 263B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.10-slim
+#2 DONE 1.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 29.93kB 0.1s done
+#4 DONE 0.1s
+
+#5 [1/5] FROM docker.io/library/python:3.10-slim@sha256:4ba18b066cee17f2696cf9a2ba564d7d5eb05a91d6a949326780aa7c6912160d
+#5 resolve docker.io/library/python:3.10-slim@sha256:4ba18b066cee17f2696cf9a2ba564d7d5eb05a91d6a949326780aa7c6912160d 0.1s done
+#5 DONE 0.1s
+
+#6 [2/5] WORKDIR /app
+#6 CACHED
+
+#7 [3/5] COPY requirements.txt .
+#7 CACHED
+
+#8 [4/5] RUN pip install --no-cache-dir -r requirements.txt
+#8 CACHED
+
+#9 [5/5] COPY . .
+#9 CACHED
+
+#10 exporting to image
+#10 exporting layers 0.0s done
+#10 exporting manifest sha256:2212410ea468f64839d8d17ea3d32a476dae228e689fe5805348b4221bb820f6 done
+#10 exporting config sha256:bbe24c279262711fc5cac7fbc428fb7250ce09d190b6bbefbcbb27937f651cf5 done
+#10 exporting attestation manifest sha256:3a37dd6e1d97f8b4ef5c4362d0ff5a005c0deba91161d30bc0d22f7e4bd9eec6 0.1s done
+#10 exporting manifest list sha256:6208e9264746e6091397b93726eb5e1961429c01bc9b68a10d304013b0f3a311
+#10 exporting manifest list sha256:6208e9264746e6091397b93726eb5e1961429c01bc9b68a10d304013b0f3a311 0.0s done
+#10 naming to docker.io/library/aceest-app:latest done
+#10 unpacking to docker.io/library/aceest-app:latest 0.0s done
+#10 DONE 0.2s
+
+C:\ProgramData\Jenkins\.jenkins\workspace\AceFit>exit 0 
+Finished: SUCCESS
