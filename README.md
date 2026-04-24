@@ -35,9 +35,10 @@ Developer → GitHub → GitHub Actions → Jenkins → Docker
 ```
 project/
 │
-├── app.py
+├── Aceestver.py
 ├── logic.py
 ├── test_logic.py
+├── test_app.py
 ├── requirements.txt
 ├── Dockerfile
 ├── .github/workflows/main.yml
@@ -82,13 +83,13 @@ http://localhost:5000/init
 ## Running Tests
 
 ```
-pytest
+pytest -q
 ```
 
 Expected output:
 
 ```
-4 passed
+11 passed
 ```
 
 ---
