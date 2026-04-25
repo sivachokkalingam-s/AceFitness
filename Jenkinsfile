@@ -38,7 +38,8 @@ pipeline {
                         -Dsonar.language=py ^
                         -Dsonar.python.version=3.10 ^
                         -Dsonar.sourceEncoding=UTF-8 ^
-                        -Dsonar.coverage.exclusions=**/templates/**,**/*.md
+                        -Dsonar.coverage.exclusions=**/templates/**,**/*.md ^
+                        -Dsonar.token=%SONAR_TOKEN%
                     """
                 }
             }
