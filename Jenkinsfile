@@ -16,13 +16,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat 'pip install -r requirements.txt'
+                sh 'pip install -r requirements.txt'
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'pytest --junitxml=test-results.xml'
+                sh 'pytest --junitxml=test-results.xml'
                 junit 'test-results.xml'
             }
         }
@@ -30,17 +30,17 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    bat """
-                        "%SONARQUBE_SCANNER_HOME%/bin/sonar-scanner" ^
-                        -Dsonar.projectKey=AceFit ^
-                        -Dsonar.sources=. ^
-                        -Dsonar.tests=test_logic.py,test_app.py ^
-                        -Dsonar.language=py ^
-                        -Dsonar.python.version=3.10 ^
-                        -Dsonar.sourceEncoding=UTF-8 ^
-                        -Dsonar.coverage.exclusions=**/templates/**,**/*.md ^
-                        -Dsonar.token=%SONAR_TOKEN%
-                    """
+                    sh '''
+                        ${SONARQUBE_SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=AceFit \
+                        -Dsonar.sources=. \
+                        -Dsonar.test.inclusions=**/test_*.py \
+                        -Dsonar.language=py \
+                        -Dsonar.python.version=3.10 \
+                        -Dsonar.sourceEncoding=UTF-8 \
+                        -Dsonar.coverage.exclusions=**/templates/**,**/*.md \
+                        -Dsonar.token=${SONAR_TOKEN}
+                    '''
                 }
             }
         }
@@ -55,34 +55,34 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat "docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% ."
-                bat "docker tag %DOCKER_IMAGE%:%DOCKER_TAG% %DOCKER_IMAGE%:latest"
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
             }
         }
 
         stage('Push Docker Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    bat """
-                        echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin
-                        docker push %DOCKER_IMAGE%:%DOCKER_TAG%
-                        docker push %DOCKER_IMAGE%:latest
-                    """
+                    sh '''
+                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker push ${DOCKER_IMAGE}:latest
+                    '''
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                bat 'kubectl apply -f k8s-deployment.yaml'
-                bat 'kubectl apply -f k8s-service.yaml'
+                sh 'kubectl apply -f k8s-deployment.yaml'
+                sh 'kubectl apply -f k8s-service.yaml'
             }
         }
     }
 
     post {
         always {
-                bat 'docker system prune -f'
+                sh 'docker system prune -f'
         }
         success {
             echo 'Pipeline succeeded!'
