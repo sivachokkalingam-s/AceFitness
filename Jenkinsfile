@@ -81,7 +81,9 @@ pipeline {
 
     post {
         always {
-            sh 'docker system prune -f'
+            node {
+                sh 'docker system prune -f'
+            }
         }
         success {
             echo 'Pipeline succeeded!'
