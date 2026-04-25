@@ -61,14 +61,18 @@ def test_api_save_progress(tmp_path, monkeypatch):
 
     app.config["TESTING"] = True
     with app.test_client() as client:
-        resp = client.post("/progress", json={"name": "Taylor", "adherence": 90})
+        resp = client.post(
+            "/progress",
+            json={"name": "Taylor", "adherence": 90},
+        )
 
     assert resp.status_code == 200
     assert resp.get_json() is None
 
     conn = sqlite3.connect(str(db_path))
     row = conn.execute(
-        "SELECT client_name, adherence FROM progress WHERE client_name = ?",
+        "SELECT client_name, adherence FROM progress "
+        "WHERE client_name = ?",
         ("Taylor",)
     ).fetchone()
     conn.close()

@@ -17,7 +17,8 @@ def test_save_client(temp_db):
 
     conn = sqlite3.connect(temp_db)
     row = conn.execute(
-        "SELECT name, age, weight, program, calories FROM clients WHERE name = ?",
+        "SELECT name, age, weight, program, calories "
+        "FROM clients WHERE name = ?",
         ("Siva",)
     ).fetchone()
     conn.close()
