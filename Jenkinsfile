@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'sivachokkalingam/aceest-app'
+        DOCKER_IMAGE = 'sivachokkalingam1510/aceest-app'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         SONARQUBE_SCANNER_HOME = tool 'SonarQubeScanner'
     }
@@ -81,7 +81,7 @@ pipeline {
 
     post {
         always {
-            sh 'docker system prune -f'
+                sh 'docker system prune -f'
         }
         success {
             echo 'Pipeline succeeded!'

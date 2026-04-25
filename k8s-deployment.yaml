@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: aceest-app
-        image: sivachokkalingam/aceest-app:latest
+        image: sivachokkalingam1510aceest-app:latest
         ports:
         - containerPort: 5000
         env:
