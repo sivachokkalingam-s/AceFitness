@@ -34,11 +34,12 @@ pipeline {
                         ${SONARQUBE_SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectKey=AceFit \
                         -Dsonar.sources=. \
-                        -Dsonar.tests=test_logic.py,test_app.py \
+                        -Dsonar.test.inclusions=**/test_*.py \
                         -Dsonar.language=py \
                         -Dsonar.python.version=3.10 \
                         -Dsonar.sourceEncoding=UTF-8 \
-                        -Dsonar.coverage.exclusions=**/templates/**,**/*.md
+                        -Dsonar.coverage.exclusions=**/templates/**,**/*.md \
+                        -Dsonar.token=${SONAR_TOKEN}
                     '''
                 }
             }
