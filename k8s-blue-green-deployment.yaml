@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-app-blue
+  labels:
+    app: aceest-app
+    color: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-app
+      color: blue
+  template:
+    metadata:
+      labels:
+        app: aceest-app
+        color: blue
+    spec:
+      containers:
+      - name: aceest-app
+        image: sivachokkalingam/aceest-app:v1  # Previous version
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aceest-app-green
+  labels:
+    app: aceest-app
+    color: green
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aceest-app
+      color: green
+  template:
+    metadata:
+      labels:
+        app: aceest-app
+        color: green
+    spec:
+      containers:
+      - name: aceest-app
+        image: sivachokkalingam/aceest-app:v2  # New version
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
