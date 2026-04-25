@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: aceest-app
-        image: sivachokkalingam/aceest-app:latest  # Or specific tag
+        image: sivachokkalingam1510aceest-app:latest  # Or specific tag
         ports:
         - containerPort: 5000
         env:
