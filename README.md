@@ -141,6 +141,23 @@ This acts as a secondary validation layer to ensure the application builds corre
 
 ---
 
+### Jenkins / Windows Prerequisites
+
+For a local Windows Jenkins agent, ensure the following are installed and available on the agent PATH:
+
+* `python` and `pip`
+* `pytest`
+* `docker`
+* `kubectl`
+* `SonarQube Scanner` tool configured in Jenkins as `SonarQubeScanner`
+* `SonarQube` server configured in Jenkins with the same name
+* Jenkins credentials id `docker-hub-credentials` for Docker Hub login
+* `SONAR_TOKEN` available to the pipeline as a secure environment variable or credential
+
+If you are running Jenkins and SonarQube locally on Windows, the pipeline should use `bat` commands instead of Unix `sh` commands.
+
+---
+
 ## Key Features Implemented
 
 * Automated testing using Pytest
