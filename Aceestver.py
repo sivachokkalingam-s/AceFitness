@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import logic
+import uvicorn
 
 app = Flask(__name__)
 
@@ -89,4 +90,4 @@ def save_progress():
 
 # ---------------- MAIN ----------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
