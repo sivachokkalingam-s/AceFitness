@@ -5,11 +5,10 @@ Assignment 2 extended test suite (Pytest + Coverage)
 import pytest
 import os
 import sqlite3
+import logic
 
 # Patch DB name before importing logic so tests use an in-memory / temp DB
 os.environ.setdefault("TESTING", "1")
-
-import logic
 
 TEST_DB = "test_aceest.db"
 
@@ -31,14 +30,22 @@ class TestInitDb:
     def test_creates_clients_table(self, isolated_db):
         conn = sqlite3.connect(isolated_db)
         cur = conn.cursor()
-        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='clients'")
+        query = (
+            "SELECT name FROM sqlite_master "
+            "WHERE type='table' AND name='clients'"
+        )
+        cur.execute(query)
         assert cur.fetchone() is not None
         conn.close()
 
     def test_creates_progress_table(self, isolated_db):
         conn = sqlite3.connect(isolated_db)
         cur = conn.cursor()
-        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='progress'")
+        query = (
+            "SELECT name FROM sqlite_master "
+            "WHERE type='table' AND name='progress'"
+        )
+        cur.execute(query)
         assert cur.fetchone() is not None
         conn.close()
 
@@ -111,7 +118,8 @@ class TestLoadClient:
         logic.save_client("Iris", 28, 65, "Beginner (BG)")
         client = logic.load_client("Iris")
         assert isinstance(client, dict)
-        assert set(client.keys()) == {"name", "age", "weight", "program", "calories"}
+        expected_keys = {"name", "age", "weight", "program", "calories"}
+        assert set(client.keys()) == expected_keys
 
 
 # ──────────────────────────────────────────────
