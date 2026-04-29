@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acefitness-green
+  labels:
+    app: acefitness
+    slot: green
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: acefitness
+      slot: green
+  template:
+    metadata:
+      labels:
+        app: acefitness
+        slot: green
+        version: APP_VERSION
+    spec:
+      containers:
+      - name: acefitness
+        image: sivachokkalingam/acefitness:APP_VERSION
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /init
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"

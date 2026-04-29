@@ -1,0 +1,43 @@
+# ============================================================
+# STRATEGY 2: Blue/Green Deployment - BLUE (stable/current)
+# Two identical environments. Switch traffic between them.
+# Rollback = switch service selector back to "blue".
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acefitness-blue
+  labels:
+    app: acefitness
+    slot: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: acefitness
+      slot: blue
+  template:
+    metadata:
+      labels:
+        app: acefitness
+        slot: blue
+        version: stable
+    spec:
+      containers:
+      - name: acefitness
+        image: sivachokkalingam/acefitness:v1
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /init
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"

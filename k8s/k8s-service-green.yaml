@@ -1,0 +1,15 @@
+# Active service pointing to GREEN (new version)
+apiVersion: v1
+kind: Service
+metadata:
+  name: acefitness-service
+  annotations:
+    deployment/active-slot: "green"
+spec:
+  selector:
+    app: acefitness
+    slot: green       # Switch back to "blue" to rollback instantly
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
