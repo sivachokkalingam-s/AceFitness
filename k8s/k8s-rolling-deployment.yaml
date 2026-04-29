@@ -1,0 +1,66 @@
+# ============================================================
+# STRATEGY 1: Rolling Update
+# Gradually replaces old pods with new ones, zero downtime.
+# maxSurge=1 allows one extra pod during rollout.
+# maxUnavailable=0 ensures no pods go down before new ones up.
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acefitness-rolling
+  labels:
+    app: acefitness
+    strategy: rolling
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: acefitness
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: acefitness
+    spec:
+      serviceAccountName: acefitness
+      automountServiceAccountToken: true
+      containers:
+      - name: acefitness
+        image: sivachokkalingam/acefitness:v1
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /init
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /init
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: acefitness-service
+spec:
+  selector:
+    app: acefitness
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer

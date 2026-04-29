@@ -1,0 +1,138 @@
+# ============================================================
+# STRATEGY 5: A/B Testing
+# Route specific user groups to different versions based on
+# HTTP headers (e.g., X-User-Group: beta).
+# Requires Istio for header-based routing.
+# ============================================================
+
+# Version A deployment (control group)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acefitness-version-a
+  labels:
+    app: acefitness
+    version: "a"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: acefitness
+      version: "a"
+  template:
+    metadata:
+      labels:
+        app: acefitness
+        version: "a"
+    spec:
+      serviceAccountName: acefitness
+      automountServiceAccountToken: true
+      containers:
+      - name: acefitness
+        image: sivachokkalingam/acefitness:v1
+        ports:
+        - containerPort: 5000
+        env:
+        - name: AB_VERSION
+          value: "A"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+            storage: "1Gi"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+            storage: "2Gi"
+---
+# Version B deployment (experimental group)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acefitness-version-b
+  labels:
+    app: acefitness
+    version: "b"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: acefitness
+      version: "b"
+  template:
+    metadata:
+      labels:
+        app: acefitness
+        version: "b"
+    spec:
+      serviceAccountName: acefitness
+      automountServiceAccountToken: true
+      containers:
+      - name: acefitness
+        image: sivachokkalingam/acefitness:v2
+        ports:
+        - containerPort: 5000
+        env:
+        - name: AB_VERSION
+          value: "B"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+            storage: "1Gi"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+            storage: "2Gi"
+---
+# Service A
+apiVersion: v1
+kind: Service
+metadata:
+  name: acefitness-a
+spec:
+  selector:
+    app: acefitness
+    version: "a"
+  ports:
+  - port: 80
+    targetPort: 5000
+---
+# Service B
+apiVersion: v1
+kind: Service
+metadata:
+  name: acefitness-b
+spec:
+  selector:
+    app: acefitness
+    version: "b"
+  ports:
+  - port: 80
+    targetPort: 5000
+---
+# Istio VirtualService: header-based A/B routing
+# Users with header X-User-Group: beta → Version B
+# All others → Version A
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: acefitness-ab-vs
+spec:
+  hosts:
+  - acefitness-service
+  http:
+  - match:
+    - headers:
+        x-user-group:
+          exact: beta
+    route:
+    - destination:
+        host: acefitness-b
+        port:
+          number: 80
+  - route:
+    - destination:
+        host: acefitness-a
+        port:
+          number: 80
