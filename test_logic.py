@@ -22,9 +22,7 @@ def isolated_db(tmp_path, monkeypatch):
     yield db_path
 
 
-# ──────────────────────────────────────────────
 # init_db
-# ──────────────────────────────────────────────
 
 class TestInitDb:
     def test_creates_clients_table(self, isolated_db):
@@ -54,9 +52,7 @@ class TestInitDb:
         logic.init_db()
 
 
-# ──────────────────────────────────────────────
 # save_client
-# ──────────────────────────────────────────────
 
 class TestSaveClient:
     def test_fat_loss_calories(self):
@@ -95,9 +91,7 @@ class TestSaveClient:
         assert client["program"] == "Muscle Gain (MG)"
 
 
-# ──────────────────────────────────────────────
 # load_client
-# ──────────────────────────────────────────────
 
 class TestLoadClient:
     def test_load_existing_client(self):
@@ -122,9 +116,7 @@ class TestLoadClient:
         assert set(client.keys()) == expected_keys
 
 
-# ──────────────────────────────────────────────
 # save_progress
-# ──────────────────────────────────────────────
 
 class TestSaveProgress:
     def test_saves_without_error(self):
@@ -153,9 +145,7 @@ class TestSaveProgress:
         assert row[0] == 95
 
 
-# ──────────────────────────────────────────────
 # PROGRAMS constant
-# ──────────────────────────────────────────────
 
 class TestPrograms:
     def test_all_three_programs_exist(self):

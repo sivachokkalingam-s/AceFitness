@@ -18,9 +18,11 @@ spec:
         slot: green
         version: APP_VERSION
     spec:
+      serviceAccountName: acefitness
+      automountServiceAccountToken: true
       containers:
       - name: acefitness
-        image: sivachokkalingam/acefitness:APP_VERSION
+        image: sivachokkalingam/acefitness:v2
         ports:
         - containerPort: 5000
         readinessProbe:
@@ -33,6 +35,8 @@ spec:
           requests:
             memory: "128Mi"
             cpu: "100m"
+            storage: "1Gi"
           limits:
             memory: "256Mi"
             cpu: "250m"
+            storage: "2Gi"

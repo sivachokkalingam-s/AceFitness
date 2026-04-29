@@ -25,6 +25,8 @@ spec:
         app: acefitness
         version: "a"
     spec:
+      serviceAccountName: acefitness
+      automountServiceAccountToken: true
       containers:
       - name: acefitness
         image: sivachokkalingam/acefitness:v1
@@ -33,6 +35,15 @@ spec:
         env:
         - name: AB_VERSION
           value: "A"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+            storage: "1Gi"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+            storage: "2Gi"
 ---
 # Version B deployment (experimental group)
 apiVersion: apps/v1
@@ -54,14 +65,25 @@ spec:
         app: acefitness
         version: "b"
     spec:
+      serviceAccountName: acefitness
+      automountServiceAccountToken: true
       containers:
       - name: acefitness
-        image: sivachokkalingam/acefitness:APP_VERSION
+        image: sivachokkalingam/acefitness:v2
         ports:
         - containerPort: 5000
         env:
         - name: AB_VERSION
           value: "B"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+            storage: "1Gi"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+            storage: "2Gi"
 ---
 # Service A
 apiVersion: v1

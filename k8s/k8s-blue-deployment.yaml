@@ -23,6 +23,8 @@ spec:
         slot: blue
         version: stable
     spec:
+      serviceAccountName: acefitness
+      automountServiceAccountToken: true
       containers:
       - name: acefitness
         image: sivachokkalingam/acefitness:v1
@@ -38,6 +40,8 @@ spec:
           requests:
             memory: "128Mi"
             cpu: "100m"
+            storage: "1Gi"
           limits:
             memory: "256Mi"
             cpu: "250m"
+            storage: "2Gi"

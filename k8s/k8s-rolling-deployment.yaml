@@ -26,9 +26,11 @@ spec:
       labels:
         app: acefitness
     spec:
+      serviceAccountName: acefitness
+      automountServiceAccountToken: true
       containers:
       - name: acefitness
-        image: sivachokkalingam/acefitness:latest
+        image: sivachokkalingam/acefitness:v1
         ports:
         - containerPort: 5000
         readinessProbe:
