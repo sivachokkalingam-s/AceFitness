@@ -8,7 +8,6 @@ pipeline {
         SONAR_PROJECT_KEY = "sivachokkalingam-s_AceFitness"
         SONAR_ORGANIZATION = "sivachokkalingam-s"
         APP_VERSION = "v${BUILD_NUMBER}"
-        SONARQUBE_SCANNER_HOME = tool 'SonarQubeScanner'
     }
 
     stages {
