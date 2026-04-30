@@ -1,8 +1,8 @@
 import sqlite3
 from datetime import datetime
+import os
 
-
-DB_NAME = "aceest_fitness.db"
+DB_NAME = os.environ.get("DB_PATH", "aceest_fitness.db")
 
 PROGRAMS = {
     "Fat Loss (FL)": {"factor": 22},

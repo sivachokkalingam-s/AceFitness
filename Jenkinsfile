@@ -6,6 +6,7 @@ pipeline {
         DOCKER_IMAGE = "sivachokkalingam1510/aceest-app"
         SONAR_HOST_URL = "https://sonarcloud.io"
         SONAR_PROJECT_KEY = "sivachokkalingam-s_AceFitness"
+        SONAR_ORGANIZATION = "sivachokkalingam-s"
         APP_VERSION = "v${BUILD_NUMBER}"
         KUBECONFIG = "${HOME}/.kube/config"
     }
@@ -45,12 +46,24 @@ pipeline {
             }
         }
 
+        stage('K8s Test') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    export KUBECONFIG=$KUBECONFIG
+                    kubectl get nodes
+                    '''
+                }
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
                         sonar-scanner \
                           -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                          -Dsonar.organization=${SONAR_ORGANIZATION} \
                           -Dsonar.projectName="ACEest Fitness" \
                           -Dsonar.projectVersion=${APP_VERSION} \
                           -Dsonar.sources=. \
