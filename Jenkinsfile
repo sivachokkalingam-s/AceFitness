@@ -3,206 +3,156 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-        DOCKER_IMAGE          = "sivachokkalingam1510/aceest-app"
-        APP_VERSION           = "v${BUILD_NUMBER}"
-        SONAR_TOKEN           = credentials('sonarcloud-token')
-        SONAR_ORG             = "sivachokkalingam-s"
-        SONAR_PROJECT_KEY     = "sivachokkalingam-s_AceFitness"
+        DOCKER_IMAGE = "sivachokkalingam1510/aceest-app"
+        SONAR_HOST_URL = "https://sonarcloud.io"
+        SONAR_PROJECT_KEY = "sivachokkalingam-s_AceFitness"
+        APP_VERSION = "v${BUILD_NUMBER}"
+        KUBECONFIG = "${HOME}/.kube/config"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                echo "Build ${env.APP_VERSION} — branch ${env.GIT_BRANCH}"
-                echo "Commit: ${env.GIT_COMMIT}"
+                git branch: 'main', url: 'https://github.com/sivachokkalingam-s/AceFitness.git'
+                echo "Checked out commit: ${GIT_COMMIT}"
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                // Windows: use bat instead of sh
-                bat '''
-                    python -m venv venv
-                    call venv\\Scripts\\activate.bat
-                    pip install --upgrade pip --quiet
-                    pip install flask uvicorn pytest pytest-cov --quiet
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                    pip install pytest pytest-cov
                 '''
             }
         }
 
-        stage('Unit Tests') {
+        stage('Run Unit Tests') {
             steps {
-                bat '''
-                    call venv\\Scripts\\activate.bat
-                    pytest test_logic.py -v ^
-                        --tb=short ^
-                        --junitxml=test-results.xml ^
-                        --cov=logic ^
-                        --cov-report=xml:coverage.xml ^
-                        --cov-report=term-missing
+                sh '''
+                    . venv/bin/activate
+                    pytest test_logic.py -v --tb=short --junitxml=test-results.xml --cov=logic --cov-report=xml
                 '''
             }
             post {
                 always {
-                    junit allowEmptyResults: true, testResults: 'test-results.xml'
+                    junit 'test-results.xml'
                 }
             }
         }
 
-        stage('SonarCloud Analysis') {
+        stage('SonarQube Analysis') {
             steps {
-                // sonar-scanner must be installed and on PATH
-                // Download: https://docs.sonarcloud.io/advanced-setup/ci-based-analysis/sonarscanner-cli/
-                bat '''
-                    sonar-scanner ^
-                      -Dsonar.host.url=https://sonarcloud.io ^
-                      -Dsonar.token=%SONAR_TOKEN% ^
-                      -Dsonar.organization=%SONAR_ORG% ^
-                      -Dsonar.projectKey=%SONAR_PROJECT_KEY% ^
-                      -Dsonar.projectName="ACEest Fitness" ^
-                      -Dsonar.projectVersion=%APP_VERSION% ^
-                      -Dsonar.sources=. ^
-                      -Dsonar.tests=test_logic.py ^
-                      -Dsonar.python.version=3 ^
-                      -Dsonar.python.coverage.reportPaths=coverage.xml ^
-                      -Dsonar.python.xunit.reportPath=test-results.xml ^
-                      "-Dsonar.exclusions=venv/**,screenshots/**,**/__pycache__/**"
-                '''
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                          -Dsonar.projectName="ACEest Fitness" \
+                          -Dsonar.projectVersion=${APP_VERSION} \
+                          -Dsonar.sources=. \
+                          -Dsonar.python.coverage.reportPaths=coverage.xml \
+                          -Dsonar.python.xunit.reportPath=test-results.xml \
+                          -Dsonar.exclusions=venv/**,screenshots/**
+                    '''
+                }
             }
         }
 
-        stage('SonarCloud Quality Gate') {
+        stage('Quality Gate') {
             steps {
-                script {
-                    timeout(time: 5, unit: 'MINUTES') {
-                        def status   = 'NONE'
-                        def attempts = 0
-                        while (status != 'OK' && status != 'ERROR' && attempts < 30) {
-                            sleep(10)
-                            attempts++
-                            def response = bat(
-                                script: "curl -sf -u %SONAR_TOKEN%: \"https://sonarcloud.io/api/qualitygates/project_status?projectKey=%SONAR_PROJECT_KEY%\"",
-                                returnStdout: true
-                            ).trim()
-                            // Extract status from JSON (simple string search for Windows)
-                            if (response.contains('"status":"OK"')) {
-                                status = 'OK'
-                            } else if (response.contains('"status":"ERROR"')) {
-                                status = 'ERROR'
-                            }
-                            echo "Quality Gate: ${status} (attempt ${attempts})"
-                        }
-                        if (status == 'ERROR') {
-                            error("SonarCloud Quality Gate FAILED — check https://sonarcloud.io/project/overview?id=${SONAR_PROJECT_KEY}")
-                        } else if (status != 'OK') {
-                            echo "WARNING: Quality Gate did not respond — continuing"
-                        } else {
-                            echo "Quality Gate PASSED"
-                        }
-                    }
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat '''
-                    docker build ^
-                      --build-arg APP_VERSION=%APP_VERSION% ^
-                      -t %DOCKER_IMAGE%:%APP_VERSION% ^
-                      -t %DOCKER_IMAGE%:latest ^
+                sh '''
+                    docker build \
+                      --build-arg APP_VERSION=${APP_VERSION} \
+                      -t ${DOCKER_IMAGE}:${APP_VERSION} \
+                      -t ${DOCKER_IMAGE}:latest \
                       .
-                    docker images %DOCKER_IMAGE%
                 '''
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                bat '''
-                    echo %DOCKERHUB_CREDENTIALS_PSW%| docker login -u %DOCKERHUB_CREDENTIALS_USR% --password-stdin
-                    docker push %DOCKER_IMAGE%:%APP_VERSION%
-                    docker push %DOCKER_IMAGE%:latest
+                sh '''
+                    echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+                    docker push ${DOCKER_IMAGE}:${APP_VERSION}
+                    docker push ${DOCKER_IMAGE}:latest
                     docker logout
                 '''
             }
         }
 
-        stage('Deploy to Minikube') {
+        stage('Deploy - Rolling Update') {
+            when { branch 'main' }
             steps {
-                script {
-                    // Check if minikube is running before deploying
-                    def minikubeStatus = bat(script: 'minikube status --profile acefitness 2>nul', returnStatus: true)
-                    if (minikubeStatus != 0) {
-                        echo "Starting Minikube..."
-                        bat 'minikube start --profile acefitness --driver=docker'
-                    }
-                }
-                bat '''
-                    kubectl config use-context acefitness
-
-                    REM Rolling Update
-                    echo === Rolling Update ===
-                    powershell -Command "(Get-Content k8s\\rolling\\rolling-deployment.yaml) -replace 'APP_VERSION', '%APP_VERSION%' | kubectl apply -f -"
+                sh '''
+                    kubectl set image deployment/acefitness-rolling \
+                      acefitness=${DOCKER_IMAGE}:${APP_VERSION} \
+                      --record
                     kubectl rollout status deployment/acefitness-rolling --timeout=120s
+                '''
+            }
+        }
 
-                    REM Blue-Green
-                    echo === Blue-Green ===
-                    kubectl apply -f k8s\\blue-green\\blue-deployment.yaml
-                    powershell -Command "(Get-Content k8s\\blue-green\\green-deployment.yaml) -replace 'APP_VERSION', '%APP_VERSION%' | kubectl apply -f -"
+        stage('Deploy - Blue/Green') {
+            when { branch 'main' }
+            steps {
+                sh '''
+                    # Deploy green version
+                    sed "s/APP_VERSION/${APP_VERSION}/g" k8s/blue-green/green-deployment.yaml | kubectl apply -f -
                     kubectl rollout status deployment/acefitness-green --timeout=120s
-                    kubectl apply -f k8s\\blue-green\\service-green.yaml
+                    # Switch traffic to green
+                    kubectl apply -f k8s/blue-green/service-green.yaml
+                    echo "Traffic switched to GREEN (${APP_VERSION})"
+                '''
+            }
+        }
 
-                    REM Canary
-                    echo === Canary ===
-                    powershell -Command "(Get-Content k8s\\canary\\canary-deployment.yaml) -replace 'APP_VERSION', '%APP_VERSION%' | kubectl apply -f -"
+        stage('Deploy - Canary') {
+            when { branch 'main' }
+            steps {
+                sh '''
+                    sed "s/APP_VERSION/${APP_VERSION}/g" k8s/canary/canary-deployment.yaml | kubectl apply -f -
                     kubectl rollout status deployment/acefitness-canary --timeout=120s
-
-                    echo === All strategies deployed ===
-                    kubectl get deployments
+                    echo "Canary (10% traffic) deployed with ${APP_VERSION}"
                 '''
             }
         }
 
         stage('Smoke Test') {
             steps {
-                script {
-                    sleep(15)
-                    def result = bat(
-                        script: 'curl -sf http://localhost/init',
-                        returnStatus: true
-                    )
-                    if (result == 0) {
-                        echo "Smoke test PASSED"
-                    } else {
-                        echo "Smoke test could not reach service — check minikube tunnel"
-                    }
-                }
+                sh '''
+                    sleep 10
+                    kubectl run smoke-test --image=curlimages/curl --restart=Never --rm -it \
+                      -- curl -sf http://acefitness-service/init && echo "Smoke test PASSED"
+                '''
             }
         }
     }
 
     post {
         success {
-            echo "=========================================="
-            echo "Pipeline SUCCESS — ${env.APP_VERSION}"
-            echo "Docker Hub: ${env.DOCKER_IMAGE}:${env.APP_VERSION}"
-            echo "SonarCloud: https://sonarcloud.io/project/overview?id=${env.SONAR_PROJECT_KEY}"
-            echo "=========================================="
+            echo "Pipeline completed successfully. Version ${APP_VERSION} deployed."
         }
         failure {
-            echo "Pipeline FAILED — check console output above"
-            // Rollback inside a node block to avoid MissingContextVariableException
-            node {
-                bat '''
-                    kubectl rollout undo deployment/acefitness-rolling 2>nul || echo rollback skipped
-                    kubectl rollout undo deployment/acefitness-green   2>nul || echo rollback skipped
-                '''
-            }
+            echo "Pipeline FAILED. Initiating rollback..."
+            sh '''
+                kubectl rollout undo deployment/acefitness-rolling || true
+                kubectl rollout undo deployment/acefitness-green  || true
+            '''
         }
         always {
-            // cleanWs must be inside a node — it is here because agent any provides one
             cleanWs()
         }
     }
