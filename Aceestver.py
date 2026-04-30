@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, render_template
 import logic
-import uvicorn
 
 app = Flask(__name__)
 
