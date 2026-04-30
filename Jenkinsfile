@@ -46,13 +46,24 @@ pipeline {
             }
         }
 
+        stage('K8s Test') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    export KUBECONFIG=$KUBECONFIG
+                    kubectl get nodes
+                    '''
+                }
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
                         sonar-scanner \
                           -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                          -Dsonar.organization=
+                          -Dsonar.organization=${SONAR_ORGANIZATION} \
                           -Dsonar.projectName="ACEest Fitness" \
                           -Dsonar.projectVersion=${APP_VERSION} \
                           -Dsonar.sources=. \
